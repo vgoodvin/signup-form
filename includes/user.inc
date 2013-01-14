@@ -18,10 +18,11 @@ class User {
   public function save() {
     if (!$this->validate()) {
       //TODO: set errors
+      return FALSE;
     }
     $timezone = new DateTimeZone('UTC');
     $date = new DateTime('now', $timezone);
-    DB::getInstance()->insert("INSERT INTO users (email, pass, lang, created_at) VALUES (:email, :pass, :lang, :created_at)", array(
+    return DB::getInstance()->insert("INSERT INTO users (email, pass, lang, created_at) VALUES (:email, :pass, :lang, :created_at)", array(
       ':email' => $this->email,
       ':pass' => $this->pass,
       ':lang' => $this->lang,

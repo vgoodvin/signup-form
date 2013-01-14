@@ -2,6 +2,7 @@
 <head>
   <title>Sign up</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <?php //TODO: add form validation in JS ?>
 </head>
 <body>
   <?php include_once('./templates/form.php'); ?>

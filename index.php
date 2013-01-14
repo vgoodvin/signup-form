@@ -26,9 +26,14 @@ function render(array $vars) {
 }
 
 if (!empty($_POST) && $_POST['op'] == 'Sign up') {
-  // TODO: validate params
   $user = new User($_POST['email'], $_POST['pass'], $_POST['lang']);
-  $user->save();
+  if ($user->save()) {
+    // TODO: send email notification
+    // TODO: redirect to form and show status message
+  }
+  else {
+    // TODO: keep entered data in form and show error message
+  }
 }
 
 render(array(
@@ -41,5 +46,6 @@ render(array(
     //'debug' => $_POST,
     'debug' => User::all(),
     //'debug' => User::findByEmail('1@example.com'),
+    // TODO: output status messages
   )
 );
