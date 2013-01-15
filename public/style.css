@@ -1,0 +1,7 @@
+#signup-form label {
+  font-weight: bold;
+  display: block;
+}
+#signup-form .form-submit {
+  margin-top: 10px;
+}
