@@ -16,6 +16,16 @@ define('HASH_SALT', '5ffblhfe3g4w');
 require_once('./includes/user.inc');
 require_once('./includes/database.inc');
 
+function set_status_message($message = NULL) {
+  if ($message) {
+    if (!isset($_SESSION['messages'])) {
+      $_SESSION['messages'] = array();
+    }
+    $_SESSION['messages'][] = $message;
+  }
+  return isset($_SESSION['messages']) ? $_SESSION['messages'] : array();
+}
+
 /**
  * Renders sign-up form.
  * @param array $vars
@@ -29,10 +39,8 @@ if (!empty($_POST) && $_POST['op'] == 'Sign up') {
   $user = new User($_POST['email'], $_POST['pass'], $_POST['lang']);
   if ($user->save()) {
     // TODO: send email notification
-    // TODO: redirect to form and show status message
-  }
-  else {
-    // TODO: keep entered data in form and show error message
+    header("Location: /", TRUE, 301);
+    exit();
   }
 }
 
@@ -42,10 +50,8 @@ render(array(
       'ru' => 'Русский',
       'es' => 'Español',
     ),
-    //'debug' => $db->query('SELECT * from users')->fetchAll(PDO::FETCH_ASSOC),
-    //'debug' => $_POST,
     'debug' => User::all(),
-    //'debug' => User::findByEmail('1@example.com'),
-    // TODO: output status messages
+    'form_data' => $_POST,
+    'messages' => set_status_message(),
   )
 );

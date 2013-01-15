@@ -3,21 +3,38 @@
 class User {
   private $email;
   private $pass;
+  private $pass_raw;
   private $lang;
 
   public function User($email, $pass, $lang) {
     $this->email = $email;
+    $this->pass_raw = $pass;
     $this->pass = crypt($pass, HASH_SALT);
     $this->lang = $lang;
   }
 
   private function validate() {
-    return TRUE;
+    $errors = array();
+    if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+      $errors[] = 'Please enter valid email address';
+    }
+    elseif (self::findByEmail($this->email)) {
+      $errors[] = 'User with given email address already exists. Please specify another email.';
+    }
+    if (strlen($this->pass_raw) < 6) {
+      $errors[] = 'Please enter at least 6 symbols in the password field';
+    }
+    if (empty($errors)) {
+      return TRUE;
+    }
+    array_walk($errors, function ($error) {
+      set_status_message($error);
+    });
+    return FALSE;
   }
 
   public function save() {
     if (!$this->validate()) {
-      //TODO: set errors
       return FALSE;
     }
     $timezone = new DateTimeZone('UTC');
