@@ -22,7 +22,7 @@ class DB {
   }
 
   /**
-   * Helper function. Executes SQL-query and returns PDOStatement object.
+   * Executes SQL-query and returns PDOStatement object.
    *
    * @param $query
    *   SQL query. For example "SELECT * FROM users WHERE email = :email"
@@ -30,7 +30,7 @@ class DB {
    *   Arguments for the query. For example: array(':email' => 'test@example.com')
    * @return PDOStatement
    */
-  private function query($query, array $args = array()) {
+  public function query($query, array $args = array()) {
     $dbq = $this->db->prepare($query);
     $dbq->execute($args);
     return $dbq;
@@ -50,15 +50,15 @@ class DB {
   }
 
   /**
-   * Executes INSERT query and returns PDOStatement object.
+   * Executes UPDATE query and returns PDOStatement object.
    *
    * @param $query
-   *   SQL query. For example "INSERT INTO users (email, ...) VALUES (:email, ...)"
+   *   SQL query. For example "UPDATE users SET email = :email WHERE id = :id"
    * @param array $args
-   *   Arguments for the query. For example: array(':email' => 'test@example.com', ...)
+   *   Arguments for the query. For example: array(':email' => 'test@example.com', ':id' => 1)
    * @return PDOStatement
    */
-  public function insert($query, array $args = array()) {
-    return $this->query($query, $args);
+  public function update($query, array $args = array()) {
+    return $this->query($query, $args)->rowCount();
   }
 }

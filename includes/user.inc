@@ -5,12 +5,14 @@ class User {
   private $pass;
   private $pass_raw;
   private $lang;
+  private $verification_id;
 
   public function User($email, $pass, $lang) {
     $this->email = $email;
     $this->pass_raw = $pass;
     $this->pass = crypt($pass, HASH_SALT);
     $this->lang = $lang;
+    $this->verification_id = md5(uniqid($email, true));
   }
 
   /**
@@ -48,10 +50,11 @@ class User {
     }
     $timezone = new DateTimeZone('UTC');
     $date = new DateTime('now', $timezone);
-    return DB::getInstance()->insert("INSERT INTO users (email, pass, lang, created_at) VALUES (:email, :pass, :lang, :created_at)", array(
+    return DB::getInstance()->query("INSERT INTO users (email, pass, lang, token, created_at) VALUES (:email, :pass, :lang, :token, :created_at)", array(
       ':email' => $this->email,
       ':pass' => $this->pass,
       ':lang' => $this->lang,
+      ':token' => $this->verification_id,
       ':created_at' => $date->format('Y-m-d H:i:s'),
     ));
   }
@@ -61,6 +64,12 @@ class User {
    */
   public function sendNotification() {
     $domain = DOMAIN;
+    $query_string = http_build_query(array(
+      'verification_id' => $this->verification_id,
+      'email' => $this->email,
+    ));
+    $verification_link = "http://{$domain}?{$query_string}";
+    $body = "Congratulations!\n\nYou just created account at {$domain}\n Follow {$verification_link} to activate your account. \r\n";
     $connect = fsockopen('localhost', 25, $errno, $errstr, 30);
     fputs($connect, "HELO localhost\r\n");
     fputs($connect, "MAIL FROM: admin@{$domain}\n");
@@ -70,7 +79,7 @@ class User {
     fputs($connect, "To: {$this->email}\n");
     fputs($connect, "Subject: You just created account at {$domain}\n");
     fputs($connect, "\n\n");
-    fputs($connect, stripslashes("Congratulations!\n\nYou just created account at {$domain}")." \r\n");
+    fputs($connect, $body);
     fputs($connect, ".\r\n");
     fputs($connect, "RSET\r\n");
   }
@@ -96,5 +105,24 @@ class User {
   public static function findByEmail($email) {
     $user = DB::getInstance()->select('SELECT * from users WHERE email = :email', array(':email' => $email));
     return reset($user);
+  }
+
+  /**
+   * Activates user account.
+   *
+   * @param $email
+   *   User's email.
+   * @param $verification_id
+   *   Verification token.
+   * @return bool
+   *   TRUE if account was activated and FALSE otherwise.
+   */
+  public static function activate($email, $verification_id) {
+    $sql = 'UPDATE users SET token = NULL, status = 1 WHERE email = :email AND token = :token AND token IS NOT NULL';
+    $rowsAffected = DB::getInstance()->update($sql, array(
+      ':email' => $email,
+      ':token' => $verification_id,
+    ));
+    return (bool) $rowsAffected;
   }
 }

@@ -51,6 +51,20 @@ function render(array $vars) {
   include_once('./templates/page.php');
 }
 
+/**
+ * Run account verification.
+ */
+if (isset($_GET['verification_id']) && isset($_GET['email'])) {
+  if (User::activate($_GET['email'], $_GET['verification_id'])) {
+    set_status_message('You account has been activated');
+  }
+  else {
+    set_status_message('Something was wrong during verification process. Please try again or contact site admin.');
+  }
+}
+/**
+ * Handle form submission.
+ */
 if (!empty($_POST) && $_POST['op'] == 'Sign up') {
   $user = new User($_POST['email'], $_POST['pass'], $_POST['lang']);
   if ($user->save()) {
