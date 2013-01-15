@@ -13,7 +13,7 @@ define('DOMAIN', 'signup-example.com');
  * Database credentials.
  */
 define('DATABASE_HOST', 'localhost');
-define('DATABASE_NAME', 'megamarka');
+define('DATABASE_NAME', 'signup');
 define('DATABASE_USER', 'test');
 define('DATABASE_PASS', 'test');
 
