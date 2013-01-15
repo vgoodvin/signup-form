@@ -1,5 +1,3 @@
-<pre><?php print_r($debug); ?></pre>
-
 <form action="/" method="post" id="signup-form">
   <div>
     <label for="edit-email">Email</label>
